@@ -78,9 +78,10 @@ async function main() {
         console.log(`🔹 Uploading file '${targetFileName}'...`);
 
         // Upload file in chunks using TransferManager
-        await tm.uploadFileInChunks(targetFileName, {
+        await tm.uploadFileInChunks(tmpFile.path, {
           chunkSizeBytes: chunkSize,
           validation: 'md5',
+          uploadName: targetFileName,
         });
 
         // Cast the metadata to the correct type
