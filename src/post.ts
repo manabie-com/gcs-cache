@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import * as glob from '@actions/glob';
-import { Storage } from '@google-cloud/storage';
+import { Storage, TransferManager } from '@google-cloud/storage';
 import * as path from 'path';
 import { withFile as withTemporaryFile } from 'tmp-promise';
 
@@ -18,6 +18,10 @@ async function main() {
     return;
   }
 
+  console.log('Bucket:', state.bucket);
+  console.log('Key file name:', state.keyFileName);
+  console.log('Target file name:', state.targetFileName);
+  console.log('Path:', state.path);
   const bucket = new Storage({ keyFilename: state.keyFileName }).bucket(
     state.bucket,
   );
@@ -64,17 +68,28 @@ async function main() {
       'Cache-Action-Compression-Method': compressionMethod,
     };
 
+    const chunkSize = 32 * 1024 * 1024;
+    const tm = new TransferManager(bucket);
+
     core.debug(`Metadata: ${JSON.stringify(customMetadata)}.`);
 
     await core
       .group('🌐 Uploading cache archive to bucket', async () => {
         console.log(`🔹 Uploading file '${targetFileName}'...`);
 
-        await bucket.upload(tmpFile.path, {
-          destination: targetFileName,
-          metadata: {
-            metadata: customMetadata,
-          },
+        // Upload file in chunks using TransferManager
+        await tm.uploadFileInChunks(targetFileName, {
+          chunkSizeBytes: chunkSize,
+          validation: 'md5',
+        });
+
+        // Cast the metadata to the correct type
+        const metadata: { [key: string]: string } = {
+          'Cache-Action-Compression-Method': compressionMethod,
+        };
+
+        await bucket.file(targetFileName).setMetadata({
+          metadata: metadata,
         });
       })
       .catch((err) => {
