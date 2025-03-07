@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:pass-culture-github-actions/gcs-cache.git"
+    "url": "git@github.com:manabie-com/gcs-cache.git"
   },
   "keywords": [
     "actions",
@@ -80,7 +80,7 @@
     "@actions/exec": "1.1.1",
     "@actions/github": "5.1.1",
     "@actions/glob": "0.4.0",
-    "@google-cloud/storage": "6.9.4",
+    "@google-cloud/storage": "7.8.0",
     "semver": "7.3.8",
     "tmp-promise": "3.0.3"
   },

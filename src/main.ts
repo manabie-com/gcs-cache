@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { Storage, File, Bucket } from '@google-cloud/storage';
+import { Storage, File, Bucket, TransferManager } from '@google-cloud/storage';
 import { withFile as withTemporaryFile } from 'tmp-promise';
 
 import { ObjectMetadata } from './gcs-utils';
@@ -39,8 +39,10 @@ async function getBestMatch(
     .then(([files]) =>
       files.sort(
         (a, b) =>
-          new Date((b.metadata as ObjectMetadata).updated).getTime() -
-          new Date((a.metadata as ObjectMetadata).updated).getTime(),
+          new Date(
+            (b.metadata as unknown as ObjectMetadata).updated,
+          ).getTime() -
+          new Date((a.metadata as unknown as ObjectMetadata).updated).getTime(),
       ),
     )
     .catch((err) => {
@@ -54,7 +56,7 @@ async function getBestMatch(
         bucketFiles.map((f) => ({
           name: f.name,
           metadata: {
-            updated: (f.metadata as ObjectMetadata).updated,
+            updated: (f.metadata as unknown as ObjectMetadata).updated,
           },
         })),
       )}.`,
@@ -111,7 +113,7 @@ async function main() {
 
   const bestMatchMetadata = await bestMatch
     .getMetadata()
-    .then(([metadata]) => metadata as ObjectMetadata)
+    .then(([metadata]) => metadata as unknown as ObjectMetadata)
     .catch((err) => {
       core.error('Failed to read object metadatas');
       throw err;
@@ -146,9 +148,15 @@ async function main() {
       .group('🌐 Downloading cache archive from bucket', async () => {
         console.log(`🔹 Downloading file '${bestMatch.name}'...`);
 
-        return bestMatch.download({
+        const transferManager = new TransferManager(bucket);
+        return transferManager.downloadFileInChunks(bestMatch.name, {
           destination: tmpFile.path,
+          chunkSizeBytes: 32 * 1024 * 1024,
+          validation: 'crc32c',
         });
+        // return bestMatch.download({
+        //   destination: tmpFile.path,
+        // });
       })
       .catch((err) => {
         core.error('Failed to download the file');
