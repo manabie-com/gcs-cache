@@ -18,6 +18,10 @@ async function main() {
     return;
   }
 
+  console.log('Bucket:', state.bucket);
+  console.log('Key file name:', state.keyFileName);
+  console.log('Target file name:', state.targetFileName);
+  console.log('Path:', state.path);
   const bucket = new Storage({ keyFilename: state.keyFileName }).bucket(
     state.bucket,
   );
