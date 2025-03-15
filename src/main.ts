@@ -153,6 +153,7 @@ async function main() {
           destination: tmpFile.path,
           chunkSizeBytes: 16 * 1024 * 1024,
           validation: 'crc32c',
+          concurrencyLimit: 2
         });
         // return bestMatch.download({
         //   destination: tmpFile.path,
