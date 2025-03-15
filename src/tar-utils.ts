@@ -90,8 +90,8 @@ export async function extractTar(
     compressionMethod === CompressionMethod.GZIP
       ? ['-z']
       : compressionMethod === CompressionMethod.ZSTD_WITHOUT_LONG
-      ? ['--use-compress-program', 'zstd -d']
-      : ['--use-compress-program', 'zstd -d --long=30'];
+      ? ['--use-compress-program', 'zstd -d --threads=2'] // Limit to 2 threads
+      : ['--use-compress-program', 'zstd -d --long=30 --threads=2']; // Long mode with 2 threads
 
   await exec.exec('tar', [
     '-x',
