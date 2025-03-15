@@ -86,12 +86,14 @@ export async function extractTar(
     `🔹 Detected '${compressionMethod}' compression method from object metadata.`,
   );
 
+  const compressionMemory = process.env['COMPRESSION_MEMORY'] || '';
+
   const compressionArgs =
     compressionMethod === CompressionMethod.GZIP
       ? ['-z']
       : compressionMethod === CompressionMethod.ZSTD_WITHOUT_LONG
-      ? ['--use-compress-program', 'zstd -d'] // Limit to 2 threads
-      : ['--use-compress-program', 'zstd -d']; // Long mode with 2 threads
+      ? ['--use-compress-program', 'zstd -d']
+      : ['--use-compress-program', 'zstd -d', compressionMemory ? '--memory=' + compressionMemory : '--long=30'];
 
   await exec.exec('tar', [
     '-x',
