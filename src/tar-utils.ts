@@ -55,12 +55,15 @@ export async function createTar(
   const compressionMethod = await getTarCompressionMethod();
   console.log(`🔹 Using '${compressionMethod}' compression method.`);
 
+
+  const compressionMemory = process.env['COMPRESSION_LONG'] || '30';
+
   const compressionArgs =
     compressionMethod === CompressionMethod.GZIP
       ? ['-z']
       : compressionMethod === CompressionMethod.ZSTD_WITHOUT_LONG
       ? ['--use-compress-program', 'zstd -T0']
-      : ['--use-compress-program', 'zstd -T0 --long=30'];
+      : ['--use-compress-program', 'zstd -T0 --long=' + compressionMemory];
 
   await exec.exec('tar', [
     '-c',
