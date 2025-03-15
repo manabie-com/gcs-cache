@@ -151,7 +151,7 @@ async function main() {
         const transferManager = new TransferManager(bucket);
         return transferManager.downloadFileInChunks(bestMatch.name, {
           destination: tmpFile.path,
-          chunkSizeBytes: 32 * 1024 * 1024,
+          chunkSizeBytes: 16 * 1024 * 1024,
           validation: 'crc32c',
         });
         // return bestMatch.download({
