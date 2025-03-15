@@ -56,14 +56,12 @@ export async function createTar(
   console.log(`🔹 Using '${compressionMethod}' compression method.`);
 
 
-  const compressionMemory = process.env['COMPRESSION_LONG'] || '30';
-
   const compressionArgs =
     compressionMethod === CompressionMethod.GZIP
       ? ['-z']
       : compressionMethod === CompressionMethod.ZSTD_WITHOUT_LONG
       ? ['--use-compress-program', 'zstd -T0']
-      : ['--use-compress-program', 'zstd -T0 --long=' + compressionMemory];
+      : ['--use-compress-program', 'zstd -T0 --long=20'];
 
   await exec.exec('tar', [
     '-c',
@@ -89,14 +87,12 @@ export async function extractTar(
     `🔹 Detected '${compressionMethod}' compression method from object metadata.`,
   );
 
-  const compressionMemory = process.env['COMPRESSION_LONG'] || '30';
-
   const compressionArgs =
     compressionMethod === CompressionMethod.GZIP
       ? ['-z']
       : compressionMethod === CompressionMethod.ZSTD_WITHOUT_LONG
       ? ['--use-compress-program', 'zstd -d']
-      : ['--use-compress-program', 'zstd -d --long=' + compressionMemory];
+      : ['--use-compress-program', 'zstd -d --long=20'];
 
   await exec.exec('tar', [
     '-x',
