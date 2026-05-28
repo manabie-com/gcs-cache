@@ -86,5 +86,10 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "overrides": {
+    "minimatch": ">=3.1.3",
+    "tmp": ">=0.2.6",
+    "undici": ">=6.24.0"
   }
 }
